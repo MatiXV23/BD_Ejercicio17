@@ -1,15 +1,28 @@
+version: "3.8"
+
 services:
-  mcp-sqlite:
-    image: mcp/sqlite:latest
-    container_name: mcp-sqlite-server
+  sqlite-db:
+    image: keinos/sqlite3
+    container_name: sqlite-db
     volumes:
-      - ./scripts:/scripts:ro
-      - sqlite_data:/data
-    environment:
-      - SQLITE_DATABASE=/data/database.db
+      - ./data:/data
+    healthcheck:
+      test: ["CMD", "sqlite3", "/data/basedatos.db", ".tables"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  app:
+    build: .
+    container_name: utec-app
+    depends_on:
+      sqlite-db:
+        condition: service_healthy
     ports:
       - "8080:8080"
-    restart: unless-stopped
-
-volumes:
-  sqlite_data:
+    volumes:
+      - .:/app
+    environment:
+      - DB_PATH=/data/basedatos.db
+    links:
+      - sqlite-db

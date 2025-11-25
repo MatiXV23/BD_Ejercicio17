@@ -3,19 +3,18 @@ import sqlite3 from "sqlite3";
 import cors from "cors";
 
 const app = express();
-app.use(cors());
 app.use(express.json());
+app.use(cors());
 
-const db = new sqlite3.Database(
-  "C:/temp/sqlite_ejercicio_17/basedatos.db",
-  (err) => {
-    if (err) {
-      console.error("Error: ", err.message);
-    } else {
-      console.log("Conectado desde Node.js");
-    }
+const DB_PATH = process.env.DB_PATH || "./basedatos.db";
+
+const db = new sqlite3.Database(DB_PATH, (err) => {
+  if (err) {
+    console.error("Error al conectar BD:", err.message);
+  } else {
+    console.log("BD conectada:", DB_PATH);
   }
-);
+});
 
 app.get("/usuarios", (req, res) => {
   db.all("SELECT * FROM USUARIOS", [], (err, rows) => {
