@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CRUD SQLite - Sistema UTEC</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.8.0/sql-wasm.js"></script>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <h1>🎓 Sistema de Gestión UTEC</h1>
+        <p>Gestión Completa de Usuarios, ITRs y Áreas</p>
+      </div>
+
+      <div class="tabs">
+        <button class="tab active" onclick="cambiarTab('usuarios')">
+          👥 Usuarios
+        </button>
+        <button class="tab" onclick="cambiarTab('estudiantes')">
+          🎓 Estudiantes
+        </button>
+        <button class="tab" onclick="cambiarTab('tutores')">👨‍🏫 Tutores</button>
+        <button class="tab" onclick="cambiarTab('analistas')">
+          📊 Analistas
+        </button>
+        <button class="tab" onclick="cambiarTab('itrs')">🏢 ITRs</button>
+      </div>
+
+      <div class="content">
+        <div class="db-controls"></div>
+
+        <!-- TAB USUARIOS -->
+        <div id="usuarios" class="tab-content active">
+          <div class="form-section">
+            <h2 id="formTitleUsuario">➕ Agregar Usuario</h2>
+            <form id="usuarioForm">
+              <input type="hidden" id="idUsuario" />
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Usuario*</label>
+                  <input type="text" id="usuario" required />
+                </div>
+                <div class="form-group">
+                  <label>Documento*</label>
+                  <input type="number" id="documento" required />
+                </div>
+                <div class="form-group">
+                  <label>Tipo Usuario*</label>
+                  <select id="tipoUsuario" required>
+                    <option value="">Seleccionar...</option>
+                    <option value="ESTUDIANTE">Estudiante</option>
+                    <option value="TUTOR">Tutor</option>
+                    <option value="ANALISTA">Analista</option>
+                  </select>
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Primer Nombre*</label>
+                  <input type="text" id="primerNombre" required />
+                </div>
+                <div class="form-group">
+                  <label>Segundo Nombre</label>
+                  <input type="text" id="segundoNombre" />
+                </div>
+                <div class="form-group">
+                  <label>Primer Apellido*</label>
+                  <input type="text" id="primerApellido" required />
+                </div>
+                <div class="form-group">
+                  <label>Segundo Apellido</label>
+                  <input type="text" id="segundoApellido" />
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Mail Personal*</label>
+                  <input type="email" id="mailPersonal" required />
+                </div>
+                <div class="form-group">
+                  <label>Mail Institucional*</label>
+                  <input type="email" id="mailInstitucional" required />
+                </div>
+                <div class="form-group">
+                  <label>Teléfono</label>
+                  <input type="tel" id="telefono" />
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Fecha Nacimiento*</label>
+                  <input type="date" id="fechaNacimiento" required />
+                </div>
+                <div class="form-group">
+                  <label>Género*</label>
+                  <select id="idGenero" required></select>
+                </div>
+                <div class="form-group">
+                  <label>Departamento*</label>
+                  <select
+                    id="idDepartamento"
+                    required
+                    onchange="cargarLocalidades()"
+                  ></select>
+                </div>
+                <div class="form-group">
+                  <label>Localidad*</label>
+                  <select id="idLocalidad" required></select>
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label>ITR*</label>
+                  <select id="idItr" required></select>
+                </div>
+                <div class="form-group">
+                  <label>Activo*</label>
+                  <select id="activo" required>
+                    <option value="S">Sí</option>
+                    <option value="N">No</option>
+                  </select>
+                </div>
+              </div>
+              <button type="submit" class="btn" id="submitBtnUsuario">
+                Agregar
+              </button>
+              <button
+                type="button"
+                class="btn"
+                onclick="cancelarEdicionUsuario()"
+                id="cancelBtnUsuario"
+                style="display: none; margin-left: 10px"
+              >
+                Cancelar
+              </button>
+            </form>
+          </div>
+          <div>
+            <h2 style="color: #667eea; margin-bottom: 20px">
+              👥 Lista de Usuarios
+            </h2>
+            <div id="tablaUsuarios"></div>
+          </div>
+        </div>
+
+        <!-- TAB ESTUDIANTES -->
+        <div id="estudiantes" class="tab-content">
+          <div class="form-section">
+            <h2 id="formTitleEstudiante">➕ Agregar Estudiante</h2>
+            <form id="estudianteForm">
+              <input type="hidden" id="idUsuarioEstudiante" />
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Usuario*</label>
+                  <select id="usuarioEstudiante" required></select>
+                </div>
+                <div class="form-group">
+                  <label>Generación*</label>
+                  <input
+                    type="text"
+                    id="generacion"
+                    placeholder="2023"
+                    required
+                  />
+                </div>
+                <div class="form-group">
+                  <label>Semestre*</label>
+                  <input type="number" id="semestre" min="1" max="8" required />
+                </div>
+              </div>
+              <button type="submit" class="btn" id="submitBtnEstudiante">
+                Agregar
+              </button>
+              <button
+                type="button"
+                class="btn"
+                onclick="cancelarEdicionEstudiante()"
+                id="cancelBtnEstudiante"
+                style="display: none; margin-left: 10px"
+              >
+                Cancelar
+              </button>
+            </form>
+          </div>
+          <div>
+            <h2 style="color: #667eea; margin-bottom: 20px">
+              🎓 Lista de Estudiantes
+            </h2>
+            <div id="tablaEstudiantes"></div>
+          </div>
+        </div>
+
+        <!-- TAB TUTORES -->
+        <div id="tutores" class="tab-content">
+          <div class="form-section">
+            <h2 id="formTitleTutor">➕ Agregar Tutor</h2>
+            <form id="tutorForm">
+              <input type="hidden" id="idUsuarioTutor" />
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Usuario*</label>
+                  <select id="usuarioTutor" required></select>
+                </div>
+                <div class="form-group">
+                  <label>Rol*</label>
+                  <select id="idRol" required></select>
+                </div>
+                <div class="form-group">
+                  <label>Área*</label>
+                  <select id="idArea" required></select>
+                </div>
+              </div>
+              <button type="submit" class="btn" id="submitBtnTutor">
+                Agregar
+              </button>
+              <button
+                type="button"
+                class="btn"
+                onclick="cancelarEdicionTutor()"
+                id="cancelBtnTutor"
+                style="display: none; margin-left: 10px"
+              >
+                Cancelar
+              </button>
+            </form>
+          </div>
+          <div>
+            <h2 style="color: #667eea; margin-bottom: 20px">
+              👨‍🏫 Lista de Tutores
+            </h2>
+            <div id="tablaTutores"></div>
+          </div>
+        </div>
+
+        <!-- TAB ANALISTAS -->
+        <div id="analistas" class="tab-content">
+          <div class="form-section">
+            <h2 id="formTitleAnalista">➕ Agregar Analista</h2>
+            <form id="analistaForm">
+              <input type="hidden" id="idUsuarioAnalista" />
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Usuario*</label>
+                  <select id="usuarioAnalista" required></select>
+                </div>
+                <div class="form-group">
+                  <label>Firma Digital*</label>
+                  <input type="text" id="firmaDigital" required />
+                </div>
+              </div>
+              <button type="submit" class="btn" id="submitBtnAnalista">
+                Agregar
+              </button>
+              <button
+                type="button"
+                class="btn"
+                onclick="cancelarEdicionAnalista()"
+                id="cancelBtnAnalista"
+                style="display: none; margin-left: 10px"
+              >
+                Cancelar
+              </button>
+            </form>
+          </div>
+          <div>
+            <h2 style="color: #667eea; margin-bottom: 20px">
+              📊 Lista de Analistas
+            </h2>
+            <div id="tablaAnalistas"></div>
+          </div>
+        </div>
+
+        <!-- TAB ITRS -->
+        <div id="itrs" class="tab-content">
+          <div class="form-section">
+            <h2 id="formTitleItr">➕ Agregar ITR</h2>
+            <form id="itrForm">
+              <input type="hidden" id="idItrEdit" />
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Nombre*</label>
+                  <input type="text" id="nombreItr" required />
+                </div>
+                <div class="form-group">
+                  <label>Departamento*</label>
+                  <select id="idDepartamentoItr" required></select>
+                </div>
+                <div class="form-group">
+                  <label>Activo*</label>
+                  <select id="activoItr" required>
+                    <option value="S">Sí</option>
+                    <option value="N">No</option>
+                  </select>
+                </div>
+              </div>
+              <button type="submit" class="btn" id="submitBtnItr">
+                Agregar
+              </button>
+              <button
+                type="button"
+                class="btn"
+                onclick="cancelarEdicionItr()"
+                id="cancelBtnItr"
+                style="display: none; margin-left: 10px"
+              >
+                Cancelar
+              </button>
+            </form>
+          </div>
+          <div>
+            <h2 style="color: #667eea; margin-bottom: 20px">
+              🏢 Lista de ITRs
+            </h2>
+            <div id="tablaItrs"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="app.js"></script>
+  </body>
+</html>
